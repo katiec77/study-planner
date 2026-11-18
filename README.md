@@ -1,4 +1,4 @@
-LedgerFocus — Accounting & Finance Study Planner
+LedgerFocus — Accounting & Finance Study Planner (V1)
 
 A streamlined, cloud-synced study and life command center built for accounting, finance, and CPA exam preparation.
 
