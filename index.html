@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LedgerFocus — Accounting &amp; Finance Study Planner</title>
+  <!-- Google Fonts: Inter & JetBrains Mono for tabular timers/numbers -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.22s ease-out forwards',
+            'slide-up': 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(8px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Custom subtle scrollbars & smooth transitions */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.55);
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Custom checkbox transition */
+    .task-checkbox:checked + .task-checkbox-box,
+    .subtask-checkbox:checked + .subtask-checkbox-box {
+      background-color: #10b981;
+      border-color: #10b981;
+    }
+    .task-checkbox:checked + .task-checkbox-box svg,
+    .subtask-checkbox:checked + .subtask-checkbox-box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
+
+  <!-- ==================== TOP NAVIGATION & EXAM COUNTDOWN BAR ==================== -->
+  <header class="sticky top-0 z-30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        
+        <!-- Brand & Title -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-indigo-500/20 shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">LedgerFocus</h1>
+                <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70">
+                  CPA / ACCA / Finance Prep
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Accounting, Controls, Audit, Tax &amp; Personal Command Center</p>
+            </div>
+          </div>
+
+          <!-- Mobile Theme Toggle -->
+          <div class="flex items-center gap-2 lg:hidden">
+            <button type="button" onclick="toggleTheme()" aria-label="Toggle theme" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+              <span class="theme-icon-sun hidden dark:inline">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+              </span>
+              <span class="theme-icon-moon inline dark:hidden">
+                <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Center & Right Controls: Exam Countdown + Overall Stats + Actions -->
+        <div class="flex flex-wrap items-center justify-between lg:justify-end gap-3 sm:gap-4">
+          
+          <!-- Target Exam Countdown Widget -->
+          <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80">
+            <div class="flex flex-col">
+              <div class="flex items-center gap-1.5">
+                <input
+                  id="examTitleInput"
+                  type="text"
+                  value="Target Exam Window"
+                  aria-label="Exam Name"
+                  class="bg-transparent text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:underline w-32 sm:w-36 truncate"
+                  title="Click to rename target exam"
+                />
+              </div>
+              <input
+                id="examDateInput"
+                type="date"
+                aria-label="Target Exam Date"
+                class="bg-transparent text-[11px] text-slate-500 dark:text-slate-400 focus:outline-none cursor-pointer"
+              />
+            </div>
+            <div id="countdownBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums bg-indigo-600 text-white shadow-xs whitespace-nowrap">
+              -- Days Left
+            </div>
+          </div>
+
+          <!-- Overall Completion Pill -->
+          <div class="flex flex-wrap items-center gap-3 px-3.5 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80">
+            <div>
+              <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Study Tasks</div>
+              <div class="flex items-center gap-1.5">
+                <span id="studyCompletionText" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">0%</span>
+                <span id="studyTasksFraction" class="text-xs text-slate-500 dark:text-slate-400 tabular-nums">(0/0)</span>
+              </div>
+            </div>
+            <div class="h-7 w-px bg-slate-200 dark:bg-slate-700"></div>
+            <div>
+              <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">HW &amp; Projects</div>
+              <div class="flex items-center gap-1.5">
+                <span id="deliverableCompletionText" class="text-sm font-bold text-violet-600 dark:text-violet-400 tabular-nums">0%</span>
+                <span id="deliverableTasksFraction" class="text-xs text-slate-500 dark:text-slate-400 tabular-nums">(0/0)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Portability & Theme Buttons -->
+          <div class="flex items-center gap-1.5">
+            <!-- Live Save Status Indicator -->
+            <div id="syncStatusPill" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-medium bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-600 dark:text-slate-300" title="Automatic save status">
+              <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span id="syncStatusText">Session Mode</span>
+            </div>
+
+            <button type="button" onclick="exportData('csv')" class="px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition flex items-center gap-1.5" title="Export tasks as CSV">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+              <span>CSV</span>
+            </button>
+            <button type="button" onclick="exportData('json')" class="px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition flex items-center gap-1.5" title="Export full backup as JSON">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+              <span>JSON</span>
+            </button>
+            <button type="button" onclick="document.getElementById('importJsonInput').click()" class="px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition flex items-center gap-1.5" title="Load a previously exported JSON backup">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+              <span>Load</span>
+            </button>
+            <input type="file" id="importJsonInput" accept=".json,application/json" class="hidden" onchange="importDataFromFile(event)" />
+            <button type="button" onclick="openClearModal()" class="px-2.5 py-2 rounded-xl text-xs font-medium border border-rose-200/80 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/70 transition" title="Clear sample tasks or reset data">
+              Clear Samples
+            </button>
+            <button type="button" onclick="toggleTheme()" aria-label="Toggle Light/Dark Mode" class="hidden lg:inline-flex p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Light/Dark Mode">
+              <span class="theme-icon-sun hidden dark:inline">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+              </span>
+              <span class="theme-icon-moon inline dark:hidden">
+                <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN DASHBOARD WORKSPACE ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- TOP-LEVEL WORKSPACE TAB SWITCHER (ACADEMIC & CPA vs. PERSONAL) -->
+    <nav aria-label="Workspace Sections" class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+      <div class="inline-flex items-center gap-1.5 p-1 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 w-full sm:w-auto">
+        <button
+          type="button"
+          id="mainTab-academic"
+          onclick="setMainTab('academic')"
+          class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-2xs"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+          <span>Academic &amp; CPA Study</span>
+          <span id="tabAcademicBadge" class="px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 tabular-nums">0</span>
+        </button>
+        <button
+          type="button"
+          id="mainTab-personal"
+          onclick="setMainTab('personal')"
+          class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+          <span>Personal</span>
+          <span id="tabPersonalBadge" class="px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 tabular-nums">0</span>
+        </button>
+      </div>
+
+      <div id="workspaceTabHint" class="hidden md:flex items-center gap-2 pr-2 text-xs text-slate-500 dark:text-slate-400">
+        <span>CPA FAR Daily Check-In + 5 Core Courses + Homework &amp; Projects</span>
+      </div>
+    </nav>
+
+    <!-- ==================== TAB 1: ACADEMIC & CPA STUDY WORKSPACE ==================== -->
+    <div id="academicWorkspaceTab" class="space-y-6">
+
+      <!-- 1. SUBJECT PROGRESS & ANALYTICS OVERVIEW (5 CORE PILLARS) -->
+      <section aria-label="Subject Progress Overview">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Core Syllabus Pillars &amp; Study Allocation
+          </h2>
+          <span class="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">Click any subject card to filter tasks</span>
+        </div>
+        <div id="subjectOverviewGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          <!-- Dynamically rendered subject progress cards -->
+        </div>
+      </section>
+
+      <!-- 1B. CPA STUDY SECTION: FAR (FINANCIAL ACCOUNTING & REPORTING) DAILY CHECK-IN -->
+      <section id="cpaFarSection" aria-label="CPA FAR Study Plan and Daily Check-In" class="bg-white dark:bg-slate-900 rounded-2xl border border-cyan-200/90 dark:border-cyan-900/70 shadow-xs overflow-hidden transition-colors">
+        <!-- Top CPA FAR Banner Header -->
+        <div class="px-4 sm:px-5 py-3.5 bg-gradient-to-r from-cyan-50/90 via-sky-50/60 to-white dark:from-cyan-950/50 dark:via-slate-900 dark:to-slate-900 border-b border-cyan-100 dark:border-cyan-900/50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div class="flex items-start sm:items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-cyan-600 text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-xs shrink-0">
+              FAR
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">CPA Exam Study Section — FAR</h2>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-100/90 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300 border border-cyan-200/80 dark:border-cyan-800/70">
+                  Financial Accounting &amp; Reporting
+                </span>
+                <span id="cpaFarStreakBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 tabular-nums">
+                  0-Day Streak
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Daily CPA FAR schedule &amp; automatic check-in for today's planned item</p>
+            </div>
+          </div>
+
+          <!-- Overall FAR Progress & Filter Switcher -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">FAR Plan:</span>
+              <span id="cpaFarOverallPct" class="text-xs font-bold text-cyan-700 dark:text-cyan-400 tabular-nums">0%</span>
+              <span id="cpaFarOverallCount" class="text-[11px] text-slate-400 dark:text-slate-500 tabular-nums">(0/0)</span>
+            </div>
+
+            <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/70">
+              <button type="button" onclick="setCpaFarFilter('upcoming')" id="cpaFarFilter-upcoming" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs">
+                Active / Upcoming
+              </button>
+              <button type="button" onclick="setCpaFarFilter('all')" id="cpaFarFilter-all" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
+                All Days
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 space-y-4">
+          <!-- DAILY PLANNED ITEM VERIFICATION BOX -->
+          <div id="cpaFarDailyCheckCard" class="rounded-xl p-3.5 sm:p-4 border transition-colors">
+            <!-- Dynamically populated daily check status & today's planned item(s) -->
+          </div>
+
+          <!-- QUICK ADD DAILY CPA FAR PLANNED ITEM -->
+          <form id="cpaFarQuickAddForm" onsubmit="event.preventDefault(); addCpaFarItem();" class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-50/90 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70">
+            <div class="sm:col-span-3">
+              <label for="cpaFarNewDate" class="sr-only">Planned Date</label>
+              <input
+                id="cpaFarNewDate"
+                type="date"
+                required
+                class="w-full px-2.5 py-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label for="cpaFarNewModule" class="sr-only">FAR Blueprint Area</label>
+              <select
+                id="cpaFarNewModule"
+                class="w-full px-2.5 py-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              >
+                <option value="F1: Conceptual Framework">F1: Conceptual Framework</option>
+                <option value="F2: Select BS/IS Accounts">F2: Select BS/IS Accounts</option>
+                <option value="F3: Leases, Bonds & Revenue" selected>F3: Leases, Bonds &amp; Revenue</option>
+                <option value="F4: Cash Flows & Consolidations">F4: Cash Flows &amp; Consolidations</option>
+                <option value="F5: Governmental (GASB)">F5: Governmental (GASB)</option>
+                <option value="F6: Not-for-Profit (NFP)">F6: Not-for-Profit (NFP)</option>
+                <option value="Simulated Exam / TBS Drill">Simulated Exam / TBS Drill</option>
+              </select>
+            </div>
+            <div class="sm:col-span-4">
+              <label for="cpaFarNewTitle" class="sr-only">Daily Planned FAR Item</label>
+              <input
+                id="cpaFarNewTitle"
+                type="text"
+                required
+                placeholder="Add daily FAR study item (e.g., 30 MCQs + 2 TBS on Bonds)..."
+                class="w-full px-3 py-2 rounded-lg text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <button
+                type="submit"
+                class="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-cyan-600 hover:bg-cyan-700 text-white shadow-2xs transition flex items-center justify-center gap-1"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                <span>Plan Item</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- SCHEDULED CPA FAR ITEMS LIST -->
+          <div id="cpaFarScheduleList" class="divide-y divide-slate-100 dark:divide-slate-800/80 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden">
+            <!-- Dynamically populated CPA FAR schedule rows -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. GLOBAL FILTER, VIEW SWITCHER & QUICK-ADD ACTION BAR -->
+      <section aria-label="Filters and View Controls" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-4 space-y-3.5 transition-colors">
+        <!-- Top Row: Subject Filter Pills + View Mode Switcher + Quick Add Actions -->
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+          <!-- Subject Filter Pills -->
+          <div id="subjectFilterTabs" class="flex items-center gap-1.5 overflow-x-auto pb-1 xl:pb-0">
+            <!-- Dynamically populated subject filter tabs -->
+          </div>
+
+          <!-- View Mode Switcher & Separate Add Buttons -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- View Switcher -->
+            <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70" role="group" aria-label="Workspace View Mode">
+              <button type="button" onclick="setViewMode('split')" id="viewBtn-split" class="view-mode-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs">
+                Split View
+              </button>
+              <button type="button" onclick="setViewMode('study')" id="viewBtn-study" class="view-mode-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
+                Study Only
+              </button>
+              <button type="button" onclick="setViewMode('deliverable')" id="viewBtn-deliverable" class="view-mode-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
+                HW &amp; Projects Only
+              </button>
+            </div>
+
+            <!-- Add Study Task Button -->
+            <button
+              type="button"
+              onclick="openTaskModal('study')"
+              class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white shadow-xs shadow-indigo-600/20 transition flex items-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Add Study Task</span>
+            </button>
+
+            <!-- Add Homework / Project Button -->
+            <button
+              type="button"
+              onclick="openTaskModal('deliverable')"
+              class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-700 active:scale-[0.99] text-white shadow-xs shadow-violet-600/20 transition flex items-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Add HW / Project</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Search + Status + Priority + Sort Controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+          <!-- Live Search -->
+          <div class="sm:col-span-5 relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search topics, deliverables, sub-tasks..."
+              class="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+            />
+          </div>
+
+          <!-- Status Filter -->
+          <div class="sm:col-span-2">
+            <select id="statusFilter" aria-label="Filter by Status" class="w-full px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="Pending" selected>Status: Active</option>
+              <option value="Completed">Completed</option>
+              <option value="All">Status: All</option>
+            </select>
+          </div>
+
+          <!-- Priority Filter -->
+          <div class="sm:col-span-2">
+            <select id="priorityFilter" aria-label="Filter by Priority" class="w-full px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="All">Priority: All</option>
+              <option value="High">High Only</option>
+              <option value="Medium">Medium Only</option>
+              <option value="Low">Low Only</option>
+            </select>
+          </div>
+
+          <!-- Sort Order -->
+          <div class="sm:col-span-3">
+            <select id="sortFilter" aria-label="Sort Tasks" class="w-full px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="dueDate">Sort: Due Date</option>
+              <option value="priority">Sort: Priority (High→Low)</option>
+              <option value="mastery">Sort: Needs Review First</option>
+              <option value="newest">Sort: Recently Added</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. DUAL-STREAM TASK WORKSPACE: STUDY TASKS vs. HOMEWORK & PROJECTS -->
+      <div id="dualWorkspaceGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- STREAM A: STUDY & REVISION TASKS -->
+        <section id="studyStreamColumn" aria-label="Study and Revision Tasks" class="lg:col-span-6 space-y-3">
+          <div class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 px-4 py-3 shadow-2xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-sm font-bold text-slate-900 dark:text-white">Study &amp; Exam Prep</h2>
+                  <span id="studyStreamCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 tabular-nums">0</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Concept mastery, readings, MCQs &amp; spaced repetition</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onclick="openTaskModal('study')"
+              class="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition flex items-center gap-1 shrink-0"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Add</span>
+            </button>
+          </div>
+
+          <div id="studyTaskListContainer" class="space-y-3">
+            <!-- Dynamically rendered Study Task cards -->
+          </div>
+        </section>
+
+        <!-- STREAM B: ACTUAL TASKS — HOMEWORK & PROJECTS (WITH EDITABLE SUB-CHECKBOXES) -->
+        <section id="deliverableStreamColumn" aria-label="Homework and Projects" class="lg:col-span-6 space-y-3">
+          <div class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 px-4 py-3 shadow-2xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-sm font-bold text-slate-900 dark:text-white">Homework &amp; Projects</h2>
+                  <span id="deliverableStreamCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 tabular-nums">0</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Deliverables, problem sets &amp; editable sub-checklists</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onclick="openTaskModal('deliverable')"
+              class="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-violet-600 dark:text-violet-400 bg-violet-50/80 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 transition flex items-center gap-1 shrink-0"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Add</span>
+            </button>
+          </div>
+
+          <div id="deliverableTaskListContainer" class="space-y-3">
+            <!-- Dynamically rendered Homework & Project cards -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 4. STREAMLINED HORIZONTAL FOCUS STUDY TIMER BAR -->
+      <section aria-label="Focus Study Timer" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-xs transition-colors">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Focus Study Timer</h3>
+                <span id="timerModeLabel" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300">25m Deep Focus</span>
+                <span id="timerLoggedBadge" class="text-[11px] font-medium text-slate-500 dark:text-slate-400 tabular-nums">0m logged today</span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Time-box MCQ blocks, simulations, or problem sets</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <!-- Preset Selector -->
+            <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/70">
+              <button type="button" onclick="setTimerPreset(25, '25m Deep Focus')" id="timerPreset-25" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition">25m</button>
+              <button type="button" onclick="setTimerPreset(45, '45m Exam Block')" id="timerPreset-45" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">45m</button>
+              <button type="button" onclick="setTimerPreset(10, '10m Short Break')" id="timerPreset-10" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">10m Break</button>
+            </div>
+
+            <!-- Subject Tag for Timer -->
+            <select id="timerSessionSubject" aria-label="Timer Subject" class="px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none">
+              <option value="CPA FAR">CPA FAR</option>
+              <option value="Financial Reporting">Financial Reporting</option>
+              <option value="Financial Statement Analysis">Financial Statement Analysis</option>
+              <option value="IT for Controls">IT for Controls</option>
+              <option value="Audit">Audit</option>
+              <option value="Taxation">Taxation</option>
+            </select>
+
+            <!-- Digital Readout -->
+            <div id="timerDisplay" class="font-mono text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums px-3 py-1 rounded-xl bg-slate-100/90 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700">
+              25:00
+            </div>
+
+            <!-- Start / Pause & Reset -->
+            <button type="button" id="timerStartPauseBtn" onclick="toggleTimer()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition flex items-center gap-1.5">
+              <span id="timerStartPauseText">Start</span>
+            </button>
+            <button type="button" onclick="resetTimer()" class="px-3 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              Reset
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== TAB 2: PERSONAL LIFE & ERRANDS WORKSPACE ==================== -->
+    <div id="personalWorkspaceTab" class="hidden space-y-6">
+
+      <!-- Personal Summary & Quick Add Card -->
+      <section aria-label="Personal Tasks Header and Quick Add" class="bg-white dark:bg-slate-900 rounded-2xl border border-teal-200/80 dark:border-teal-900/60 p-4 sm:p-5 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Personal &amp; Home Routines</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Laundry, meal prep, groceries, cleaning &amp; personal errands with editable sub-checklists</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="px-3 py-1.5 rounded-xl bg-teal-50/80 dark:bg-teal-950/60 border border-teal-200/70 dark:border-teal-800/70 text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Active: </span>
+              <span id="personalActiveCount" class="font-bold text-teal-700 dark:text-teal-300 tabular-nums">0</span>
+              <span class="mx-1.5 text-slate-300 dark:text-slate-700">|</span>
+              <span class="text-slate-500 dark:text-slate-400">Done: </span>
+              <span id="personalCompletedCount" class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">0</span>
+            </div>
+            <button type="button" onclick="openTaskModal('personal')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-2xs transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Detailed Task</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Personal Quick Add Bar -->
+        <form onsubmit="event.preventDefault(); quickAddPersonalTask();" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 bg-slate-50/90 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/70">
+          <div class="sm:col-span-4">
+            <label for="personalQuickTitle" class="sr-only">Personal Task</label>
+            <input id="personalQuickTitle" type="text" required placeholder="Add personal task (e.g., Sunday meal prep, Laundry)..." class="w-full px-3 py-2 rounded-lg text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/40" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="personalQuickCategory" class="sr-only">Category</label>
+            <select id="personalQuickCategory" class="w-full px-2.5 py-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none">
+              <option value="Home & Chores">Home &amp; Chores</option>
+              <option value="Cooking & Groceries">Cooking &amp; Groceries</option>
+              <option value="Errands & Admin">Errands &amp; Admin</option>
+              <option value="Health & Wellness">Health &amp; Wellness</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label for="personalQuickDueDate" class="sr-only">Due Date</label>
+            <input id="personalQuickDueDate" type="date" class="w-full px-2.5 py-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="personalQuickRecurrence" class="sr-only">Repeat</label>
+            <select id="personalQuickRecurrence" class="w-full px-2.5 py-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none">
+              <option value="none">One-time</option>
+              <option value="weekly" selected>Weekly &#8635;</option>
+              <option value="daily">Daily &#8635;</option>
+              <option value="biweekly">Bi-weekly &#8635;</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <button type="submit" class="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-2xs transition flex items-center justify-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <span>Add</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Personal Category Filter Pills & Status -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-1">
+          <div id="personalCategoryTabs" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <!-- Dynamically rendered personal category pills -->
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="personalSearchInput" type="text" placeholder="Search personal tasks..." class="px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none" />
+            <select id="personalStatusFilter" aria-label="Personal Status Filter" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none">
+              <option value="Pending" selected>Active</option>
+              <option value="Completed">Completed</option>
+              <option value="All">All</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Personal Task Grid -->
+      <div id="personalTaskListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Dynamically rendered Personal task cards -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== ADD / EDIT TASK MODAL ==================== -->
+  <div id="taskModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full shadow-2xl overflow-hidden animate-slide-up">
+      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 id="modalTitleText" class="text-base font-bold text-slate-900 dark:text-white">Add Study Task</h3>
+          <p id="modalTypeLabel" class="text-xs text-slate-500 dark:text-slate-400">Create a syllabus study item or recurring task</p>
+        </div>
+        <button type="button" onclick="closeTaskModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="taskModalForm" onsubmit="event.preventDefault(); saveTaskFromModal();" class="p-5 space-y-4 max-h-[82vh] overflow-y-auto">
+        <input type="hidden" id="modalTaskId" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="modalTaskType" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Stream / Section</label>
+            <select id="modalTaskType" onchange="handleModalTypeChange()" class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="study">Study &amp; Exam Prep</option>
+              <option value="deliverable">Homework &amp; Projects</option>
+              <option value="personal">Personal &amp; Home</option>
+            </select>
+          </div>
+
+          <div id="modalSubjectRow">
+            <label for="modalSubject" id="modalSubjectLabel" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject / Category</label>
+            <select id="modalSubject" class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="modalTitle" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Task Title</label>
+          <input id="modalTitle" type="text" required placeholder="e.g., ASC 842 Lease Classification Practice Set" class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="modalDueDate" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date</label>
+            <input id="modalDueDate" type="date" required class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+          </div>
+
+          <div>
+            <label for="modalRecurrence" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Repeat Schedule</label>
+            <select id="modalRecurrence" class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="none">One-time</option>
+              <option value="weekly">Weekly &#8635;</option>
+              <option value="daily">Daily &#8635;</option>
+              <option value="biweekly">Bi-weekly &#8635;</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="modalPriority" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Priority</label>
+            <select id="modalPriority" class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="modalMasteryRow">
+          <label for="modalMastery" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confidence / Mastery Level</label>
+          <select id="modalMastery" class="w-full px-3 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+            <option value="Needs Review">Needs Review (Red)</option>
+            <option value="In Progress" selected>In Progress (Amber)</option>
+            <option value="Exam Ready">Exam Ready (Emerald)</option>
+          </select>
+        </div>
+
+        <!-- Sub-checkboxes Section (for Homework/Projects & Personal) -->
+        <div id="modalSubtasksSection" class="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Sub-Checkboxes (Checklist Steps)</label>
+            <span class="text-[11px] text-slate-400">Resets automatically on weekly tasks</span>
+          </div>
+          <div id="modalSubtasksList" class="space-y-1.5">
+            <!-- Rendered modal subtasks -->
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="modalNewSubtaskInput" type="text" placeholder="Add a step (e.g., Run Excel ratio sensitivity table)..." onkeydown="if(event.key==='Enter'){event.preventDefault(); addModalSubtask();}" class="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none" />
+            <button type="button" onclick="addModalSubtask()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+              + Step
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="modalNotes" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Key Formulas, Standards or Notes</label>
+          <textarea id="modalNotes" rows="2" placeholder="Optional formulas, ASC/IRC references, or reminders..." class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CLEAR SAMPLES / RESET CONFIRMATION MODAL ==================== -->
+  <div id="clearModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 shadow-2xl space-y-4 animate-slide-up">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Manage Workspace Data</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Choose whether to clear all starter tasks for a blank slate or restore the sample syllabus dataset.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <button type="button" onclick="closeClearModal()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancel</button>
+        <button type="button" onclick="restoreSampleData()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 transition">Restore Samples</button>
+        <button type="button" onclick="clearAllTasks()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs transition">Clear All Tasks</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION BANNER ==================== -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200">
+    <div class="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium shadow-lg border border-slate-700/70 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="toastMessage">Saved</span>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION JAVASCRIPT ==================== -->
+  <script>
+    /**
+     * ============================================================================
+     * PASTE YOUR 6 FIREBASE CONFIG VALUES INSIDE THE QUOTES BELOW:
+     * (Found in Firebase Console -> Project Settings -> Your Apps -> firebaseConfig)
+     * Then save this file as index.html and upload it to your GitHub repo!
+     * ============================================================================
+     */
+    const PERSONAL_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBIxR1T9P-iiM3WyWK6Kj0vWV17k59mvYo",
+      authDomain: "kitkatplan-79f2c.firebaseapp.com",
+      projectId: "kitkatplan-79f2c",
+      storageBucket: "kitkatplan-79f2c.firebasestorage.app",
+      messagingSenderId: "250651696991",
+      appId: "1:250651696991:web:3e2fd329d8cad7cc2360ea"
+    };
+
+    // ==================== CORE SUBJECTS & CATEGORIES ====================
+    const SUBJECTS = [
+      { id: 'Financial Reporting', short: 'Fin. Reporting', color: 'indigo', badgeBg: 'bg-indigo-50 dark:bg-indigo-950/70', badgeText: 'text-indigo-700 dark:text-indigo-300', barColor: 'bg-indigo-600', borderHover: 'hover:border-indigo-400' },
+      { id: 'Financial Statement Analysis', short: 'Fin. Analysis', color: 'sky', badgeBg: 'bg-sky-50 dark:bg-sky-950/70', badgeText: 'text-sky-700 dark:text-sky-300', barColor: 'bg-sky-600', borderHover: 'hover:border-sky-400' },
+      { id: 'IT for Controls', short: 'IT Controls', color: 'violet', badgeBg: 'bg-violet-50 dark:bg-violet-950/70', badgeText: 'text-violet-700 dark:text-violet-300', barColor: 'bg-violet-600', borderHover: 'hover:border-violet-400' },
+      { id: 'Audit', short: 'Audit', color: 'emerald', badgeBg: 'bg-emerald-50 dark:bg-emerald-950/70', badgeText: 'text-emerald-700 dark:text-emerald-300', barColor: 'bg-emerald-600', borderHover: 'hover:border-emerald-400' },
+      { id: 'Taxation', short: 'Taxation', color: 'amber', badgeBg: 'bg-amber-50 dark:bg-amber-950/70', badgeText: 'text-amber-700 dark:text-amber-300', barColor: 'bg-amber-500', borderHover: 'hover:border-amber-400' }
+    ];
+
+    const PERSONAL_CATEGORIES = [
+      'Home & Chores',
+      'Cooking & Groceries',
+      'Errands & Admin',
+      'Health & Wellness'
+    ];
+
+    // ==================== DATE & RECURRENCE HELPERS ====================
+    function getLocalDateISO(offsetDays = 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function addRecurrenceToDate(dateStr, recurrence) {
+      const base = dateStr ? new Date(dateStr + 'T12:00:00') : new Date();
+      if (recurrence === 'daily') base.setDate(base.getDate() + 1);
+      else if (recurrence === 'biweekly') base.setDate(base.getDate() + 14);
+      else base.setDate(base.getDate() + 7);
+      const y = base.getFullYear();
+      const m = String(base.getMonth() + 1).padStart(2, '0');
+      const day = String(base.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return 'No date';
+      const today = getLocalDateISO(0);
+      const tomorrow = getLocalDateISO(1);
+      if (dateStr === today) return 'Today';
+      if (dateStr === tomorrow) return 'Tomorrow';
+      const d = new Date(dateStr + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function getRecurrenceLabel(rec) {
+      if (rec === 'daily') return 'Daily ↻';
+      if (rec === 'weekly') return 'Weekly ↻';
+      if (rec === 'biweekly') return 'Bi-weekly ↻';
+      return '';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==================== DEFAULT STARTER DATASET ====================
+    function buildDefaultState() {
+      return {
+        theme: 'light',
+        examTitle: 'CPA FAR & Finals Window',
+        examDate: getLocalDateISO(34),
+        mainTab: 'academic',
+        selectedSubject: 'All',
+        viewMode: 'split',
+        cpaFarFilter: 'upcoming',
+        personalCategoryFilter: 'All',
+        loggedMinutesToday: 50,
+        tasks: [
+          {
+            id: 't-study-1',
+            type: 'study',
+            subject: 'Financial Reporting',
+            title: 'ASC 842 Lease Accounting: ROU Asset & Lease Liability Amortization',
+            dueDate: getLocalDateISO(1),
+            recurrence: 'weekly',
+            priority: 'High',
+            mastery: 'In Progress',
+            notes: 'Review finance vs. operating lease classification criteria (OWNES) and initial direct costs.',
+            completed: false,
+            createdAt: Date.now() - 500000
+          },
+          {
+            id: 't-study-2',
+            type: 'study',
+            subject: 'Financial Statement Analysis',
+            title: 'DuPont ROE Decomposition & Cash Conversion Cycle Ratios',
+            dueDate: getLocalDateISO(2),
+            recurrence: 'none',
+            priority: 'Medium',
+            mastery: 'Exam Ready',
+            notes: 'ROE = Net Profit Margin × Asset Turnover × Equity Multiplier.',
+            completed: false,
+            createdAt: Date.now() - 450000
+          },
+          {
+            id: 't-study-3',
+            type: 'study',
+            subject: 'IT for Controls',
+            title: 'COSO Internal Control Framework & IT General Controls (ITGCs)',
+            dueDate: getLocalDateISO(2),
+            recurrence: 'weekly',
+            priority: 'High',
+            mastery: 'Needs Review',
+            notes: 'Focus on change management, logical access segregation, and SOC 1 Type II reports.',
+            completed: false,
+            createdAt: Date.now() - 400000
+          },
+          {
+            id: 't-study-4',
+            type: 'study',
+            subject: 'Audit',
+            title: 'Audit Sampling Risk: Attribute vs. Monetary Unit Sampling (MUS)',
+            dueDate: getLocalDateISO(3),
+            recurrence: 'none',
+            priority: 'High',
+            mastery: 'In Progress',
+            notes: 'Distinguish risk of assessing control risk too low vs. risk of incorrect acceptance.',
+            completed: false,
+            createdAt: Date.now() - 350000
+          },
+          {
+            id: 't-study-5',
+            type: 'study',
+            subject: 'Taxation',
+            title: 'Corporate Book-to-Tax Reconciliation (Schedule M-1 / M-3)',
+            dueDate: getLocalDateISO(4),
+            recurrence: 'none',
+            priority: 'Medium',
+            mastery: 'Needs Review',
+            notes: 'Permanent vs. temporary differences: meals (50%), municipal bond interest, MACRS vs. SL.',
+            completed: false,
+            createdAt: Date.now() - 300000
+          },
+          {
+            id: 't-deliv-1',
+            type: 'deliverable',
+            subject: 'Financial Statement Analysis',
+            title: '10-K Comparative Ratio & Free Cash Flow Model (Target Corp)',
+            dueDate: getLocalDateISO(2),
+            recurrence: 'none',
+            priority: 'High',
+            mastery: 'In Progress',
+            notes: 'Submit Excel workbook with 3-year historical ratios and executive memo.',
+            completed: false,
+            createdAt: Date.now() - 250000,
+            subtasks: [
+              { id: 'st-1', text: 'Extract 3-year Income Statement & Balance Sheet from SEC 10-K', completed: true },
+              { id: 'st-2', text: 'Compute liquidity, solvency & DuPont profitability ratios', completed: false },
+              { id: 'st-3', text: 'Write 1-page credit & valuation summary memo', completed: false }
+            ]
+          },
+          {
+            id: 't-deliv-2',
+            type: 'deliverable',
+            subject: 'IT for Controls',
+            title: 'Weekly ERP Segregation of Duties (SoD) Risk Matrix',
+            dueDate: getLocalDateISO(3),
+            recurrence: 'weekly',
+            priority: 'Medium',
+            mastery: 'In Progress',
+            notes: 'Identify Procure-to-Pay conflicts and recommend mitigating controls.',
+            completed: false,
+            createdAt: Date.now() - 200000,
+            subtasks: [
+              { id: 'st-4', text: 'Map AP Clerk vs. Vendor Master maintenance permissions', completed: true },
+              { id: 'st-5', text: 'Document automated 3-way match compensating control', completed: false }
+            ]
+          },
+          {
+            id: 't-deliv-3',
+            type: 'deliverable',
+            subject: 'Taxation',
+            title: 'Form 1120 Corporate Tax Problem Set #4',
+            dueDate: getLocalDateISO(4),
+            recurrence: 'weekly',
+            priority: 'High',
+            mastery: 'In Progress',
+            notes: 'Include charitable contribution 10% limitation and DRD worksheet.',
+            completed: false,
+            createdAt: Date.now() - 150000,
+            subtasks: [
+              { id: 'st-6', text: 'Calculate Dividends Received Deduction (50% / 65% tiers)', completed: false },
+              { id: 'st-7', text: 'Reconcile GAAP net income to taxable income on Schedule M-1', completed: false }
+            ]
+          },
+          {
+            id: 't-pers-1',
+            type: 'personal',
+            subject: 'Home & Chores',
+            title: 'Weekly Laundry & Desk Reset',
+            dueDate: getLocalDateISO(1),
+            recurrence: 'weekly',
+            priority: 'Medium',
+            mastery: 'In Progress',
+            notes: 'Keep study desk clear for Monday morning FAR block.',
+            completed: false,
+            createdAt: Date.now() - 120000,
+            subtasks: [
+              { id: 'st-p1', text: 'Wash & fold clothes + bedding', completed: false },
+              { id: 'st-p2', text: 'Organize accounting notes & charge laptop/calculator', completed: false }
+            ]
+          },
+          {
+            id: 't-pers-2',
+            type: 'personal',
+            subject: 'Cooking & Groceries',
+            title: 'Weekly Grocery Run & High-Protein Meal Prep',
+            dueDate: getLocalDateISO(2),
+            recurrence: 'weekly',
+            priority: 'Medium',
+            mastery: 'In Progress',
+            notes: 'Prep 4 lunches so weeknight study blocks stay uninterrupted.',
+            completed: false,
+            createdAt: Date.now() - 100000,
+            subtasks: [
+              { id: 'st-p3', text: 'Check pantry & build grocery list', completed: true },
+              { id: 'st-p4', text: 'Cook lunches for Mon–Thu', completed: false }
+            ]
+          }
+        ],
+        cpaFarItems: [
+          {
+            id: 'far-1',
+            date: getLocalDateISO(0),
+            module: 'F3: Leases, Bonds & Revenue',
+            title: '30 MCQs + 2 Task-Based Simulations on Effective Interest Bond Amortization',
+            completed: false
+          },
+          {
+            id: 'far-2',
+            date: getLocalDateISO(1),
+            module: 'F4: Cash Flows & Consolidations',
+            title: 'Indirect Statement of Cash Flows Operating Section + CAR IN BIG Elimination Drill',
+            completed: false
+          },
+          {
+            id: 'far-3',
+            date: getLocalDateISO(2),
+            module: 'F5: Governmental (GASB)',
+            title: 'Modified Accrual vs. Full Accrual Fund Reconciliation (25 MCQs)',
+            completed: false
+          }
+        ]
+      };
+    }
+
+    // ==================== APPLICATION STATE & CLOUD SYNC ====================
+    let appState = buildDefaultState();
+    let modalDraftSubtasks = [];
+    let editingSubtaskRef = null; // { taskId, subtaskId }
+    let editingFarItemId = null;
+
+    // Cloud persistence references
+    let cloudDb = null;
+    let cloudUserUid = null;
+    let cloudDocRef = null;
+    let saveDebounceTimer = null;
+
+    function updateSyncBadge(status, label) {
+      const dot = document.getElementById('syncStatusDot');
+      const text = document.getElementById('syncStatusText');
+      if (!dot || !text) return;
+      text.textContent = label;
+      dot.className = 'w-1.5 h-1.5 rounded-full ' + (
+        status === 'saved' ? 'bg-emerald-500' :
+        status === 'saving' ? 'bg-amber-400 animate-pulse' :
+        status === 'error' ? 'bg-rose-500' :
+        'bg-sky-500'
+      );
+    }
+
+    async function initPersistence() {
+      const hasPersonalConfig = PERSONAL_FIREBASE_CONFIG &&
+        typeof PERSONAL_FIREBASE_CONFIG.apiKey === 'string' &&
+        PERSONAL_FIREBASE_CONFIG.apiKey.trim().length > 0 &&
+        PERSONAL_FIREBASE_CONFIG.projectId &&
+        PERSONAL_FIREBASE_CONFIG.projectId.trim().length > 0;
+
+      if (!hasPersonalConfig) {
+        updateSyncBadge('session', 'Session Mode');
+        return;
+      }
+
+      try {
+        updateSyncBadge('saving', 'Connecting...');
+        const [appMod, authMod, fsMod] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js'),
+          import('https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js')
+        ]);
+
+        const fbApp = appMod.initializeApp(PERSONAL_FIREBASE_CONFIG);
+        const auth = authMod.getAuth(fbApp);
+        cloudDb = fsMod.getFirestore(fbApp);
+
+        const cred = await authMod.signInAnonymously(auth);
+        cloudUserUid = cred.user.uid;
+        const appId = PERSONAL_FIREBASE_CONFIG.projectId.trim();
+        cloudDocRef = fsMod.doc(cloudDb, 'artifacts', appId, 'users', cloudUserUid, 'planner', 'state');
+
+        const snap = await fsMod.getDoc(cloudDocRef);
+        if (snap.exists() && snap.data() && snap.data().payload) {
+          const parsed = JSON.parse(snap.data().payload);
+          appState = { ...buildDefaultState(), ...parsed };
+          applyThemeFromState();
+          renderAll();
+        } else {
+          await fsMod.setDoc(cloudDocRef, { payload: JSON.stringify(appState), updatedAt: Date.now() });
+        }
+        updateSyncBadge('saved', 'Cloud Saved');
+      } catch (err) {
+        console.warn('Cloud sync fallback to Session Mode:', err);
+        cloudDb = null;
+        cloudDocRef = null;
+        updateSyncBadge('session', 'Session Mode');
+      }
+    }
+
+    function persistState() {
+      if (!cloudDb || !cloudDocRef) return;
+      updateSyncBadge('saving', 'Saving...');
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(async () => {
+        try {
+          const fsMod = await import('https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js');
+          await fsMod.setDoc(cloudDocRef, {
+            payload: JSON.stringify(appState),
+            updatedAt: Date.now()
+          });
+          updateSyncBadge('saved', 'Cloud Saved');
+        } catch (err) {
+          console.error('Failed saving to cloud:', err);
+          updateSyncBadge('error', 'Sync Error');
+        }
+      }, 450);
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastContainer');
+      const text = document.getElementById('toastMessage');
+      if (!box || !text) return;
+      text.textContent = msg;
+      box.classList.remove('opacity-0', 'translate-y-2');
+      box.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(box._hideTimer);
+      box._hideTimer = setTimeout(() => {
+        box.classList.add('opacity-0', 'translate-y-2');
+        box.classList.remove('opacity-100', 'translate-y-0');
+      }, 2400);
+    }
+
+    // ==================== THEME & COUNTDOWN ====================
+    function applyThemeFromState() {
+      const html = document.documentElement;
+      if (appState.theme === 'dark') html.classList.add('dark');
+      else html.classList.remove('dark');
+    }
+
+    function toggleTheme() {
+      appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+      applyThemeFromState();
+      persistState();
+    }
+
+    function updateCountdownDisplay() {
+      const titleInput = document.getElementById('examTitleInput');
+      const dateInput = document.getElementById('examDateInput');
+      const badge = document.getElementById('countdownBadge');
+      if (!titleInput || !dateInput || !badge) return;
+
+      titleInput.value = appState.examTitle || 'Target Exam Window';
+      dateInput.value = appState.examDate || getLocalDateISO(30);
+
+      const today = new Date(getLocalDateISO(0) + 'T00:00:00');
+      const target = new Date(dateInput.value + 'T00:00:00');
+      const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+
+      if (isNaN(diffDays)) {
+        badge.textContent = '-- Days Left';
+      } else if (diffDays > 0) {
+        badge.textContent = `${diffDays} Day${diffDays === 1 ? '' : 's'} Left`;
+      } else if (diffDays === 0) {
+        badge.textContent = 'Exam Day!';
+      } else {
+        badge.textContent = `${Math.abs(diffDays)}d Ago`;
+      }
+    }
+
+    // ==================== TOP-LEVEL TAB & VIEW SWITCHERS ====================
+    function setMainTab(tab) {
+      appState.mainTab = tab;
+      const academicTabEl = document.getElementById('academicWorkspaceTab');
+      const personalTabEl = document.getElementById('personalWorkspaceTab');
+      const btnAcad = document.getElementById('mainTab-academic');
+      const btnPers = document.getElementById('mainTab-personal');
+      const hint = document.getElementById('workspaceTabHint');
+
+      if (tab === 'personal') {
+        academicTabEl.classList.add('hidden');
+        personalTabEl.classList.remove('hidden');
+        btnPers.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-300 shadow-2xs';
+        btnAcad.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2';
+        if (hint) hint.innerHTML = '<span>Home Routines, Cooking, Groceries &amp; Weekly Checklists</span>';
+      } else {
+        personalTabEl.classList.add('hidden');
+        academicTabEl.classList.remove('hidden');
+        btnAcad.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-2xs';
+        btnPers.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2';
+        if (hint) hint.innerHTML = '<span>CPA FAR Daily Check-In + 5 Core Courses + Homework &amp; Projects</span>';
+      }
+      persistState();
+    }
+
+    function setViewMode(mode) {
+      appState.viewMode = mode;
+      ['split', 'study', 'deliverable'].forEach(m => {
+        const btn = document.getElementById(`viewBtn-${m}`);
+        if (!btn) return;
+        if (m === mode) {
+          btn.className = 'view-mode-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs';
+        } else {
+          btn.className = 'view-mode-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+        }
+      });
+
+      const studyCol = document.getElementById('studyStreamColumn');
+      const delivCol = document.getElementById('deliverableStreamColumn');
+      if (!studyCol || !delivCol) return;
+
+      if (mode === 'study') {
+        studyCol.classList.remove('hidden', 'lg:col-span-6');
+        studyCol.classList.add('lg:col-span-12');
+        delivCol.classList.add('hidden');
+      } else if (mode === 'deliverable') {
+        delivCol.classList.remove('hidden', 'lg:col-span-6');
+        delivCol.classList.add('lg:col-span-12');
+        studyCol.classList.add('hidden');
+      } else {
+        studyCol.classList.remove('hidden', 'lg:col-span-12');
+        studyCol.classList.add('lg:col-span-6');
+        delivCol.classList.remove('hidden', 'lg:col-span-12');
+        delivCol.classList.add('lg:col-span-6');
+      }
+      persistState();
+    }
+
+    function selectSubjectFilter(subj) {
+      appState.selectedSubject = subj;
+      renderSubjectOverview();
+      renderSubjectFilterTabs();
+      renderAcademicTasks();
+    }
+
+    // ==================== RENDER SUBJECT OVERVIEW & FILTER TABS ====================
+    function renderSubjectOverview() {
+      const grid = document.getElementById('subjectOverviewGrid');
+      if (!grid) return;
+
+      grid.innerHTML = SUBJECTS.map(subj => {
+        const subjTasks = appState.tasks.filter(t => t.subject === subj.id && t.type !== 'personal');
+        const total = subjTasks.length;
+        const done = subjTasks.filter(t => t.completed).length;
+        const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+        const isSelected = appState.selectedSubject === subj.id;
+
+        return `
+          <button
+            type="button"
+            onclick="selectSubjectFilter('${subj.id}')"
+            class="text-left p-3.5 rounded-2xl bg-white dark:bg-slate-900 border transition-all ${
+              isSelected
+                ? 'border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm'
+                : 'border-slate-200/90 dark:border-slate-800 ' + subj.borderHover + ' shadow-2xs'
+            }"
+          >
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="px-2 py-0.5 rounded-lg text-[11px] font-semibold ${subj.badgeBg} ${subj.badgeText} truncate">
+                ${escapeHtml(subj.short)}
+              </span>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tabular-nums">${pct}%</span>
+            </div>
+            <div class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate mb-2" title="${escapeHtml(subj.id)}">
+              ${escapeHtml(subj.id)}
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-1.5">
+              <div class="h-full rounded-full ${subj.barColor} transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+              <span>${done}/${total} completed</span>
+              <span>${total - done} active</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSubjectFilterTabs() {
+      const container = document.getElementById('subjectFilterTabs');
+      if (!container) return;
+
+      const tabs = [{ id: 'All', label: 'All Subjects' }, ...SUBJECTS.map(s => ({ id: s.id, label: s.short }))];
+      container.innerHTML = tabs.map(tab => {
+        const active = appState.selectedSubject === tab.id;
+        return `
+          <button
+            type="button"
+            onclick="selectSubjectFilter('${tab.id}')"
+            class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              active
+                ? 'bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-2xs'
+                : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700'
+            }"
+          >
+            ${escapeHtml(tab.label)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // ==================== CPA FAR DAILY CHECK-IN & SCHEDULE ====================
+    function setCpaFarFilter(filter) {
+      appState.cpaFarFilter = filter;
+      const btnUp = document.getElementById('cpaFarFilter-upcoming');
+      const btnAll = document.getElementById('cpaFarFilter-all');
+      if (btnUp && btnAll) {
+        if (filter === 'upcoming') {
+          btnUp.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs';
+          btnAll.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+        } else {
+          btnAll.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs';
+          btnUp.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+        }
+      }
+      renderCpaFarSection();
+    }
+
+    function addCpaFarItem() {
+      const dateEl = document.getElementById('cpaFarNewDate');
+      const modEl = document.getElementById('cpaFarNewModule');
+      const titleEl = document.getElementById('cpaFarNewTitle');
+      if (!titleEl || !titleEl.value.trim()) return;
+
+      appState.cpaFarItems.push({
+        id: 'far-' + Date.now(),
+        date: dateEl.value || getLocalDateISO(0),
+        module: modEl.value,
+        title: titleEl.value.trim(),
+        completed: false
+      });
+      titleEl.value = '';
+      persistState();
+      renderCpaFarSection();
+      showToast('CPA FAR daily item scheduled');
+    }
+
+    function toggleCpaFarItem(id) {
+      const item = appState.cpaFarItems.find(x => x.id === id);
+      if (!item) return;
+      item.completed = !item.completed;
+      persistState();
+      renderCpaFarSection();
+      if (item.completed) {
+        showToast('CPA FAR item completed!');
+      }
+    }
+
+    function deleteCpaFarItem(id) {
+      appState.cpaFarItems = appState.cpaFarItems.filter(x => x.id !== id);
+      persistState();
+      renderCpaFarSection();
+      showToast('CPA FAR item removed');
+    }
+
+    function startEditCpaFarItem(id) {
+      editingFarItemId = id;
+      renderCpaFarSection();
+      setTimeout(() => {
+        const inp = document.getElementById(`edit-far-input-${id}`);
+        if (inp) { inp.focus(); inp.select(); }
+      }, 20);
+    }
+
+    function commitEditCpaFarItem(id) {
+      const inp = document.getElementById(`edit-far-input-${id}`);
+      if (inp && inp.value.trim()) {
+        const item = appState.cpaFarItems.find(x => x.id === id);
+        if (item) item.title = inp.value.trim();
+      }
+      editingFarItemId = null;
+      persistState();
+      renderCpaFarSection();
+    }
+
+    function renderCpaFarSection() {
+      const items = [...appState.cpaFarItems].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const total = items.length;
+      const done = items.filter(x => x.completed).length;
+      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+      const pctEl = document.getElementById('cpaFarOverallPct');
+      const countEl = document.getElementById('cpaFarOverallCount');
+      const streakEl = document.getElementById('cpaFarStreakBadge');
+      if (pctEl) pctEl.textContent = `${pct}%`;
+      if (countEl) countEl.textContent = `(${done}/${total})`;
+      if (streakEl) streakEl.textContent = `${done} Day${done === 1 ? '' : 's'} Logged`;
+
+      // Daily Check-in Card (checks today's planned FAR items)
+      const todayISO = getLocalDateISO(0);
+      const todaysItems = items.filter(x => x.date === todayISO);
+      const checkCard = document.getElementById('cpaFarDailyCheckCard');
+
+      if (checkCard) {
+        if (todaysItems.length === 0) {
+          checkCard.className = 'rounded-xl p-3.5 sm:p-4 border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2';
+          checkCard.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
+              <span class="text-xs font-medium text-slate-600 dark:text-slate-300">No CPA FAR item scheduled specifically for today (${formatDisplayDate(todayISO)}). Use the bar below to plan today's FAR drill.</span>
+            </div>
+          `;
+        } else {
+          const allTodayDone = todaysItems.every(x => x.completed);
+          if (allTodayDone) {
+            checkCard.className = 'rounded-xl p-3.5 sm:p-4 border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50/70 dark:bg-emerald-950/30 space-y-2';
+            checkCard.innerHTML = `
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white">Checked In</span>
+                  <span class="text-xs font-bold text-emerald-900 dark:text-emerald-200">You completed today's planned CPA FAR session!</span>
+                </div>
+                <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">${todaysItems.length} item${todaysItems.length > 1 ? 's' : ''} done</span>
+              </div>
+            `;
+          } else {
+            checkCard.className = 'rounded-xl p-3.5 sm:p-4 border border-amber-200/90 dark:border-amber-900/70 bg-amber-50/70 dark:bg-amber-950/30 space-y-2.5';
+            checkCard.innerHTML = `
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white">Today's Check-In</span>
+                  <span class="text-xs font-bold text-amber-950 dark:text-amber-200">Did you complete today's planned FAR item?</span>
+                </div>
+                <span class="text-[11px] text-amber-800 dark:text-amber-300 font-medium">Check off below once finished</span>
+              </div>
+              <div class="space-y-1.5">
+                ${todaysItems.filter(x => !x.completed).map(item => `
+                  <label class="flex items-center justify-between gap-3 p-2 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-amber-200/70 dark:border-amber-800/50 cursor-pointer hover:border-cyan-400 transition">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <input type="checkbox" onchange="toggleCpaFarItem('${item.id}')" class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer" />
+                      <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 shrink-0">${escapeHtml(item.module)}</span>
+                      <span class="text-xs font-medium text-slate-800 dark:text-slate-100 truncate">${escapeHtml(item.title)}</span>
+                    </div>
+                    <span class="text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 shrink-0">Mark Done</span>
+                  </label>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+      }
+
+      // Render Schedule List (auto-hiding completed items in 'upcoming' view!)
+      const listEl = document.getElementById('cpaFarScheduleList');
+      if (!listEl) return;
+
+      const visibleItems = appState.cpaFarFilter === 'upcoming'
+        ? items.filter(x => !x.completed)
+        : items;
+
+      if (visibleItems.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-4 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-900/40">
+            ${appState.cpaFarFilter === 'upcoming' ? 'All scheduled CPA FAR items are checked off! Switch to "All Days" to review completed sessions or add a new item above.' : 'No CPA FAR sessions scheduled yet.'}
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = visibleItems.map(item => {
+        const isEditing = editingFarItemId === item.id;
+        return `
+          <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <input
+                type="checkbox"
+                ${item.completed ? 'checked' : ''}
+                onchange="toggleCpaFarItem('${item.id}')"
+                class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer shrink-0"
+              />
+              <span class="text-[11px] font-semibold tabular-nums px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+                ${formatDisplayDate(item.date)}
+              </span>
+              <span class="hidden sm:inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300 shrink-0">
+                ${escapeHtml(item.module)}
+              </span>
+              ${isEditing ? `
+                <input
+                  id="edit-far-input-${item.id}"
+                  type="text"
+                  value="${escapeHtml(item.title)}"
+                  onkeydown="if(event.key==='Enter'){event.preventDefault(); commitEditCpaFarItem('${item.id}');} else if(event.key==='Escape'){editingFarItemId=null; renderCpaFarSection();}"
+                  onblur="commitEditCpaFarItem('${item.id}')"
+                  class="flex-1 px-2 py-1 rounded-lg text-xs bg-white dark:bg-slate-800 border border-cyan-400 text-slate-900 dark:text-white focus:outline-none"
+                />
+              ` : `
+                <span
+                  ondblclick="startEditCpaFarItem('${item.id}')"
+                  title="Double-click to edit"
+                  class="text-xs font-medium truncate cursor-text ${item.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}"
+                >
+                  ${escapeHtml(item.title)}
+                </span>
+              `}
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" onclick="startEditCpaFarItem('${item.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Edit item">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
+              </button>
+              <button type="button" onclick="deleteCpaFarItem('${item.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Delete item">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== TASK COMPLETION, WEEKLY RECURRENCE & SUB-CHECKBOXES ====================
+    function toggleTaskCompletion(taskId) {
+      const idx = appState.tasks.findIndex(t => t.id === taskId);
+      if (idx === -1) return;
+
+      const task = appState.tasks[idx];
+      const wasCompleted = task.completed;
+      task.completed = !wasCompleted;
+
+      // If checking off a recurring task (Weekly / Daily / Bi-weekly), immediately spawn next cycle's fresh task
+      if (!wasCompleted && task.recurrence && task.recurrence !== 'none') {
+        const nextDue = addRecurrenceToDate(task.dueDate, task.recurrence);
+        const clonedSubtasks = Array.isArray(task.subtasks)
+          ? task.subtasks.map((st, i) => ({
+              id: 'st-' + Date.now() + '-' + i,
+              text: st.text,
+              completed: false
+            }))
+          : undefined;
+
+        const nextTask = {
+          ...task,
+          id: 't-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          dueDate: nextDue,
+          completed: false,
+          createdAt: Date.now(),
+          ...(clonedSubtasks ? { subtasks: clonedSubtasks } : {})
+        };
+
+        appState.tasks.splice(idx + 1, 0, nextTask);
+        showToast(`Completed! Next ${getRecurrenceLabel(task.recurrence)} task scheduled for ${formatDisplayDate(nextDue)}`);
+      } else if (task.completed) {
+        showToast('Task completed & cleared from active view');
+      }
+
+      persistState();
+      renderAll();
+    }
+
+    function toggleSubtask(taskId, subtaskId) {
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task || !Array.isArray(task.subtasks)) return;
+      const st = task.subtasks.find(s => s.id === subtaskId);
+      if (!st) return;
+      st.completed = !st.completed;
+      persistState();
+      renderAcademicTasks();
+      renderPersonalTasks();
+    }
+
+    function addQuickSubtask(taskId, inputId) {
+      const inp = document.getElementById(inputId);
+      if (!inp || !inp.value.trim()) return;
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      if (!Array.isArray(task.subtasks)) task.subtasks = [];
+      task.subtasks.push({
+        id: 'st-' + Date.now(),
+        text: inp.value.trim(),
+        completed: false
+      });
+      inp.value = '';
+      persistState();
+      renderAcademicTasks();
+      renderPersonalTasks();
+    }
+
+    function startEditSubtask(taskId, subtaskId) {
+      editingSubtaskRef = { taskId, subtaskId };
+      renderAcademicTasks();
+      renderPersonalTasks();
+      setTimeout(() => {
+        const inp = document.getElementById(`subtask-edit-${subtaskId}`);
+        if (inp) { inp.focus(); inp.select(); }
+      }, 20);
+    }
+
+    function commitEditSubtask(taskId, subtaskId) {
+      const inp = document.getElementById(`subtask-edit-${subtaskId}`);
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (inp && task && Array.isArray(task.subtasks)) {
+        const st = task.subtasks.find(s => s.id === subtaskId);
+        if (st && inp.value.trim()) {
+          st.text = inp.value.trim();
+        }
+      }
+      editingSubtaskRef = null;
+      persistState();
+      renderAcademicTasks();
+      renderPersonalTasks();
+    }
+
+    function deleteSubtask(taskId, subtaskId) {
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task || !Array.isArray(task.subtasks)) return;
+      task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+      persistState();
+      renderAcademicTasks();
+      renderPersonalTasks();
+    }
+
+    function cycleTaskMastery(taskId) {
+      const order = ['Needs Review', 'In Progress', 'Exam Ready'];
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      const nextIdx = (order.indexOf(task.mastery) + 1) % order.length;
+      task.mastery = order[nextIdx];
+      persistState();
+      renderAcademicTasks();
+    }
+
+    function deleteTask(taskId) {
+      appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+      persistState();
+      renderAll();
+      showToast('Task deleted');
+    }
+
+    // ==================== RENDER ACADEMIC TASKS (STUDY & DELIVERABLES) ====================
+    function getSubjectMeta(subjectId) {
+      return SUBJECTS.find(s => s.id === subjectId) || {
+        short: subjectId,
+        badgeBg: 'bg-slate-100 dark:bg-slate-800',
+        badgeText: 'text-slate-700 dark:text-slate-300'
+      };
+    }
+
+    function getPriorityBadge(priority) {
+      if (priority === 'High') return 'bg-rose-50 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60';
+      if (priority === 'Low') return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200/70 dark:border-slate-700';
+      return 'bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/60';
+    }
+
+    function getMasteryBadge(mastery) {
+      if (mastery === 'Exam Ready') return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60';
+      if (mastery === 'Needs Review') return 'bg-rose-50 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60';
+      return 'bg-sky-50 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300 border-sky-200/70 dark:border-sky-800/60';
+    }
+
+    function sortTaskList(list, sortMode) {
+      const prioRank = { High: 1, Medium: 2, Low: 3 };
+      const masteryRank = { 'Needs Review': 1, 'In Progress': 2, 'Exam Ready': 3 };
+      return [...list].sort((a, b) => {
+        if (sortMode === 'priority') {
+          return (prioRank[a.priority] || 2) - (prioRank[b.priority] || 2) || (a.dueDate || '').localeCompare(b.dueDate || '');
+        }
+        if (sortMode === 'mastery') {
+          return (masteryRank[a.mastery] || 2) - (masteryRank[b.mastery] || 2) || (a.dueDate || '').localeCompare(b.dueDate || '');
+        }
+        if (sortMode === 'newest') {
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        }
+        return (a.dueDate || '9999-12-31').localeCompare(b.dueDate || '9999-12-31');
+      });
+    }
+
+    function renderSubtasksBlock(task, accentClass = 'violet') {
+      const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+      const doneCount = subtasks.filter(s => s.completed).length;
+      const inputId = `quick-sub-${task.id}`;
+      const editBorder = accentClass === 'teal' ? 'border-teal-400' : 'border-violet-400';
+      const hoverText = accentClass === 'teal' ? 'hover:text-teal-600 dark:hover:text-teal-400' : 'hover:text-violet-600 dark:hover:text-violet-400';
+
+      return `
+        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="font-semibold">Sub-Checkboxes (${doneCount}/${subtasks.length})</span>
+            <span>Double-click or click pencil to edit</span>
+          </div>
+          <div class="space-y-1.5">
+            ${subtasks.map(st => {
+              const isEditing = editingSubtaskRef && editingSubtaskRef.taskId === task.id && editingSubtaskRef.subtaskId === st.id;
+              return `
+                <div class="flex items-center justify-between gap-2 group/sub rounded-lg px-2 py-1 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <input
+                      type="checkbox"
+                      ${st.completed ? 'checked' : ''}
+                      onchange="toggleSubtask('${task.id}', '${st.id}')"
+                      class="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
+                    />
+                    ${isEditing ? `
+                      <input
+                        id="subtask-edit-${st.id}"
+                        type="text"
+                        value="${escapeHtml(st.text)}"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault(); commitEditSubtask('${task.id}', '${st.id}');} else if(event.key==='Escape'){editingSubtaskRef=null; renderAcademicTasks(); renderPersonalTasks();}"
+                        onblur="commitEditSubtask('${task.id}', '${st.id}')"
+                        class="flex-1 px-1.5 py-0.5 rounded text-xs bg-white dark:bg-slate-900 border ${editBorder} text-slate-900 dark:text-white focus:outline-none"
+                      />
+                    ` : `
+                      <span
+                        ondblclick="startEditSubtask('${task.id}', '${st.id}')"
+                        class="text-xs truncate cursor-text ${st.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}"
+                      >
+                        ${escapeHtml(st.text)}
+                      </span>
+                    `}
+                  </div>
+                  <div class="flex items-center gap-0.5 opacity-80 sm:opacity-0 sm:group-hover/sub:opacity-100 transition shrink-0">
+                    <button type="button" onclick="startEditSubtask('${task.id}', '${st.id}')" class="p-1 rounded text-slate-400 ${hoverText}" title="Edit step">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/></svg>
+                    </button>
+                    <button type="button" onclick="deleteSubtask('${task.id}', '${st.id}')" class="p-1 rounded text-slate-400 hover:text-rose-500" title="Remove step">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="flex items-center gap-1.5 pt-0.5">
+            <input
+              id="${inputId}"
+              type="text"
+              placeholder="+ Add sub-checkbox..."
+              onkeydown="if(event.key==='Enter'){event.preventDefault(); addQuickSubtask('${task.id}', '${inputId}');}"
+              class="flex-1 px-2.5 py-1 rounded-lg text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
+            />
+            <button type="button" onclick="addQuickSubtask('${task.id}', '${inputId}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              Add
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAcademicTaskCard(task) {
+      const subj = getSubjectMeta(task.subject);
+      const isStudy = task.type === 'study';
+      const recLabel = getRecurrenceLabel(task.recurrence);
+
+      return `
+        <article class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-2xs hover:shadow-sm transition-all">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0 flex-1">
+              <input
+                type="checkbox"
+                ${task.completed ? 'checked' : ''}
+                onchange="toggleTaskCompletion('${task.id}')"
+                aria-label="Complete ${escapeHtml(task.title)}"
+                class="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold ${subj.badgeBg} ${subj.badgeText}">
+                    ${escapeHtml(subj.short)}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-medium border ${getPriorityBadge(task.priority)}">
+                    ${escapeHtml(task.priority)}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
+                    ${formatDisplayDate(task.dueDate)}
+                  </span>
+                  ${recLabel ? `
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
+                      ${recLabel}
+                    </span>
+                  ` : ''}
+                  ${isStudy ? `
+                    <button
+                      type="button"
+                      onclick="cycleTaskMastery('${task.id}')"
+                      title="Click to cycle confidence rating"
+                      class="px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer transition ${getMasteryBadge(task.mastery || 'In Progress')}"
+                    >
+                      ${escapeHtml(task.mastery || 'In Progress')}
+                    </button>
+                  ` : ''}
+                </div>
+
+                <h3 class="text-sm font-semibold leading-snug ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'}">
+                  ${escapeHtml(task.title)}
+                </h3>
+
+                ${task.notes ? `
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">${escapeHtml(task.notes)}</p>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" onclick="openEditTaskModal('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Edit task">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/></svg>
+              </button>
+              <button type="button" onclick="deleteTask('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Delete task">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+              </button>
+            </div>
+          </div>
+
+          ${!isStudy ? renderSubtasksBlock(task, 'violet') : ''}
+        </article>
+      `;
+    }
+
+    function renderAcademicTasks() {
+      const searchQ = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      const statusF = document.getElementById('statusFilter')?.value || 'Pending';
+      const prioF = document.getElementById('priorityFilter')?.value || 'All';
+      const sortF = document.getElementById('sortFilter')?.value || 'dueDate';
+
+      const matchesFilter = (t) => {
+        if (appState.selectedSubject !== 'All' && t.subject !== appState.selectedSubject) return false;
+        if (statusF === 'Pending' && t.completed) return false;
+        if (statusF === 'Completed' && !t.completed) return false;
+        if (prioF !== 'All' && t.priority !== prioF) return false;
+        if (searchQ) {
+          const hay = `${t.title} ${t.subject} ${t.notes || ''} ${(t.subtasks || []).map(s => s.text).join(' ')}`.toLowerCase();
+          if (!hay.includes(searchQ)) return false;
+        }
+        return true;
+      };
+
+      const studyTasks = sortTaskList(
+        appState.tasks.filter(t => t.type === 'study' && matchesFilter(t)),
+        sortF
+      );
+      const delivTasks = sortTaskList(
+        appState.tasks.filter(t => t.type === 'deliverable' && matchesFilter(t)),
+        sortF
+      );
+
+      const studyBadge = document.getElementById('studyStreamCountBadge');
+      const delivBadge = document.getElementById('deliverableStreamCountBadge');
+      if (studyBadge) studyBadge.textContent = studyTasks.length;
+      if (delivBadge) delivBadge.textContent = delivTasks.length;
+
+      const studyContainer = document.getElementById('studyTaskListContainer');
+      const delivContainer = document.getElementById('deliverableTaskListContainer');
+
+      if (studyContainer) {
+        studyContainer.innerHTML = studyTasks.length === 0
+          ? `<div class="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">No study tasks match your current filters. Click <strong>+ Add</strong> above to create one.</div>`
+          : studyTasks.map(renderAcademicTaskCard).join('');
+      }
+
+      if (delivContainer) {
+        delivContainer.innerHTML = delivTasks.length === 0
+          ? `<div class="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">No homework or project deliverables match your current filters.</div>`
+          : delivTasks.map(renderAcademicTaskCard).join('');
+      }
+    }
+
+    // ==================== RENDER PERSONAL TAB ====================
+    function renderPersonalCategoryTabs() {
+      const container = document.getElementById('personalCategoryTabs');
+      if (!container) return;
+      const cats = ['All', ...PERSONAL_CATEGORIES];
+      container.innerHTML = cats.map(c => {
+        const active = appState.personalCategoryFilter === c;
+        return `
+          <button
+            type="button"
+            onclick="appState.personalCategoryFilter='${c}'; renderPersonalCategoryTabs(); renderPersonalTasks();"
+            class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              active
+                ? 'bg-teal-600 text-white shadow-2xs'
+                : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700'
+            }"
+          >
+            ${escapeHtml(c)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function quickAddPersonalTask() {
+      const titleEl = document.getElementById('personalQuickTitle');
+      const catEl = document.getElementById('personalQuickCategory');
+      const dateEl = document.getElementById('personalQuickDueDate');
+      const recEl = document.getElementById('personalQuickRecurrence');
+      if (!titleEl || !titleEl.value.trim()) return;
+
+      appState.tasks.unshift({
+        id: 't-pers-' + Date.now(),
+        type: 'personal',
+        subject: catEl.value || 'Home & Chores',
+        title: titleEl.value.trim(),
+        dueDate: dateEl.value || getLocalDateISO(1),
+        recurrence: recEl.value || 'none',
+        priority: 'Medium',
+        mastery: 'In Progress',
+        notes: '',
+        completed: false,
+        createdAt: Date.now(),
+        subtasks: []
+      });
+
+      titleEl.value = '';
+      persistState();
+      renderAll();
+      showToast('Personal task added');
+    }
+
+    function renderPersonalTasks() {
+      const container = document.getElementById('personalTaskListContainer');
+      if (!container) return;
+
+      const allPersonal = appState.tasks.filter(t => t.type === 'personal');
+      const activeCount = allPersonal.filter(t => !t.completed).length;
+      const doneCount = allPersonal.filter(t => t.completed).length;
+
+      const actEl = document.getElementById('personalActiveCount');
+      const doneEl = document.getElementById('personalCompletedCount');
+      const tabBadge = document.getElementById('tabPersonalBadge');
+      if (actEl) actEl.textContent = activeCount;
+      if (doneEl) doneEl.textContent = doneCount;
+      if (tabBadge) tabBadge.textContent = activeCount;
+
+      const statusF = document.getElementById('personalStatusFilter')?.value || 'Pending';
+      const searchQ = (document.getElementById('personalSearchInput')?.value || '').trim().toLowerCase();
+
+      const filtered = sortTaskList(
+        allPersonal.filter(t => {
+          if (appState.personalCategoryFilter !== 'All' && t.subject !== appState.personalCategoryFilter) return false;
+          if (statusF === 'Pending' && t.completed) return false;
+          if (statusF === 'Completed' && !t.completed) return false;
+          if (searchQ) {
+            const hay = `${t.title} ${t.subject} ${t.notes || ''} ${(t.subtasks || []).map(s => s.text).join(' ')}`.toLowerCase();
+            if (!hay.includes(searchQ)) return false;
+          }
+          return true;
+        }),
+        'dueDate'
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="md:col-span-2 p-8 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">No personal tasks match this view. Add a routine or errand above!</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(task => {
+        const recLabel = getRecurrenceLabel(task.recurrence);
+        return `
+          <article class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-2xs hover:shadow-sm transition-all">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
+                <input
+                  type="checkbox"
+                  ${task.completed ? 'checked' : ''}
+                  onchange="toggleTaskCompletion('${task.id}')"
+                  class="mt-0.5 w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
+                />
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300">
+                      ${escapeHtml(task.subject)}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
+                      ${formatDisplayDate(task.dueDate)}
+                    </span>
+                    ${recLabel ? `
+                      <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/60">
+                        ${recLabel}
+                      </span>
+                    ` : ''}
+                  </div>
+                  <h3 class="text-sm font-semibold ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'}">
+                    ${escapeHtml(task.title)}
+                  </h3>
+                  ${task.notes ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(task.notes)}</p>` : ''}
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="openEditTaskModal('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Edit task">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/></svg>
+                </button>
+                <button type="button" onclick="deleteTask('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Delete task">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                </button>
+              </div>
+            </div>
+            ${renderSubtasksBlock(task, 'teal')}
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ==================== HEADER STATS SUMMARY ====================
+    function updateHeaderStats() {
+      const studyAll = appState.tasks.filter(t => t.type === 'study');
+      const studyDone = studyAll.filter(t => t.completed).length;
+      const studyPct = studyAll.length === 0 ? 0 : Math.round((studyDone / studyAll.length) * 100);
+
+      const delivAll = appState.tasks.filter(t => t.type === 'deliverable');
+      const delivDone = delivAll.filter(t => t.completed).length;
+      const delivPct = delivAll.length === 0 ? 0 : Math.round((delivDone / delivAll.length) * 100);
+
+      document.getElementById('studyCompletionText').textContent = `${studyPct}%`;
+      document.getElementById('studyTasksFraction').textContent = `(${studyDone}/${studyAll.length})`;
+      document.getElementById('deliverableCompletionText').textContent = `${delivPct}%`;
+      document.getElementById('deliverableTasksFraction').textContent = `(${delivDone}/${delivAll.length})`;
+
+      const activeAcad = (studyAll.length - studyDone) + (delivAll.length - delivDone);
+      document.getElementById('tabAcademicBadge').textContent = activeAcad;
+    }
+
+    // ==================== ADD / EDIT TASK MODAL LOGIC ====================
+    function populateModalSubjectDropdown(type, selectedVal) {
+      const subjSelect = document.getElementById('modalSubject');
+      const subjLabel = document.getElementById('modalSubjectLabel');
+      const masteryRow = document.getElementById('modalMasteryRow');
+      const subtasksSec = document.getElementById('modalSubtasksSection');
+
+      if (type === 'personal') {
+        subjLabel.textContent = 'Personal Category';
+        subjSelect.innerHTML = PERSONAL_CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+        masteryRow.classList.add('hidden');
+        subtasksSec.classList.remove('hidden');
+      } else {
+        subjLabel.textContent = 'Course Pillar';
+        subjSelect.innerHTML = SUBJECTS.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.id)}</option>`).join('');
+        if (type === 'study') {
+          masteryRow.classList.remove('hidden');
+          subtasksSec.classList.add('hidden');
+        } else {
+          masteryRow.classList.add('hidden');
+          subtasksSec.classList.remove('hidden');
+        }
+      }
+
+      if (selectedVal) subjSelect.value = selectedVal;
+    }
+
+    function handleModalTypeChange() {
+      const type = document.getElementById('modalTaskType').value;
+      populateModalSubjectDropdown(type);
+    }
+
+    function renderModalSubtasksList() {
+      const list = document.getElementById('modalSubtasksList');
+      if (!list) return;
+      list.innerHTML = modalDraftSubtasks.map((st, idx) => `
+        <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700">
+          <span class="text-xs text-slate-700 dark:text-slate-200 truncate">${escapeHtml(st.text)}</span>
+          <button type="button" onclick="modalDraftSubtasks.splice(${idx}, 1); renderModalSubtasksList();" class="text-slate-400 hover:text-rose-500 text-xs px-1">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    function addModalSubtask() {
+      const inp = document.getElementById('modalNewSubtaskInput');
+      if (!inp || !inp.value.trim()) return;
+      modalDraftSubtasks.push({
+        id: 'st-' + Date.now() + '-' + modalDraftSubtasks.length,
+        text: inp.value.trim(),
+        completed: false
+      });
+      inp.value = '';
+      renderModalSubtasksList();
+    }
+
+    function openTaskModal(defaultType = 'study') {
+      document.getElementById('modalTaskId').value = '';
+      document.getElementById('modalTitleText').textContent =
+        defaultType === 'deliverable' ? 'Add Homework / Project' :
+        defaultType === 'personal' ? 'Add Personal Task' : 'Add Study Task';
+      document.getElementById('modalTypeLabel').textContent = 'Configure schedule, recurrence & checklist items';
+      document.getElementById('modalTaskType').value = defaultType;
+
+      const defaultSubj = defaultType === 'personal'
+        ? PERSONAL_CATEGORIES[0]
+        : (appState.selectedSubject !== 'All' ? appState.selectedSubject : SUBJECTS[0].id);
+
+      populateModalSubjectDropdown(defaultType, defaultSubj);
+      document.getElementById('modalTitle').value = '';
+      document.getElementById('modalDueDate').value = getLocalDateISO(2);
+      document.getElementById('modalRecurrence').value = defaultType === 'personal' ? 'weekly' : 'none';
+      document.getElementById('modalPriority').value = 'Medium';
+      document.getElementById('modalMastery').value = 'In Progress';
+      document.getElementById('modalNotes').value = '';
+      modalDraftSubtasks = [];
+      renderModalSubtasksList();
+
+      const modal = document.getElementById('taskModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('modalTitle').focus(), 30);
+    }
+
+    function openEditTaskModal(taskId) {
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('modalTaskId').value = task.id;
+      document.getElementById('modalTitleText').textContent = 'Edit Task';
+      document.getElementById('modalTypeLabel').textContent = 'Update task details, recurrence & checklist steps';
+      document.getElementById('modalTaskType').value = task.type;
+      populateModalSubjectDropdown(task.type, task.subject);
+
+      document.getElementById('modalTitle').value = task.title;
+      document.getElementById('modalDueDate').value = task.dueDate || getLocalDateISO(1);
+      document.getElementById('modalRecurrence').value = task.recurrence || 'none';
+      document.getElementById('modalPriority').value = task.priority || 'Medium';
+      document.getElementById('modalMastery').value = task.mastery || 'In Progress';
+      document.getElementById('modalNotes').value = task.notes || '';
+      modalDraftSubtasks = Array.isArray(task.subtasks) ? task.subtasks.map(s => ({ ...s })) : [];
+      renderModalSubtasksList();
+
+      const modal = document.getElementById('taskModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTaskModal() {
+      const modal = document.getElementById('taskModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveTaskFromModal() {
+      const id = document.getElementById('modalTaskId').value;
+      const type = document.getElementById('modalTaskType').value;
+      const subject = document.getElementById('modalSubject').value;
+      const title = document.getElementById('modalTitle').value.trim();
+      const dueDate = document.getElementById('modalDueDate').value;
+      const recurrence = document.getElementById('modalRecurrence').value;
+      const priority = document.getElementById('modalPriority').value;
+      const mastery = document.getElementById('modalMastery').value;
+      const notes = document.getElementById('modalNotes').value.trim();
+
+      if (!title) return;
+
+      if (id) {
+        const existing = appState.tasks.find(t => t.id === id);
+        if (existing) {
+          existing.type = type;
+          existing.subject = subject;
+          existing.title = title;
+          existing.dueDate = dueDate;
+          existing.recurrence = recurrence;
+          existing.priority = priority;
+          existing.mastery = mastery;
+          existing.notes = notes;
+          if (type !== 'study') existing.subtasks = modalDraftSubtasks;
+        }
+        showToast('Task updated');
+      } else {
+        appState.tasks.unshift({
+          id: 't-' + Date.now(),
+          type,
+          subject,
+          title,
+          dueDate,
+          recurrence,
+          priority,
+          mastery,
+          notes,
+          completed: false,
+          createdAt: Date.now(),
+          ...(type !== 'study' ? { subtasks: modalDraftSubtasks } : {})
+        });
+        showToast('New task added');
+      }
+
+      closeTaskModal();
+      persistState();
+      renderAll();
+    }
+
+    // ==================== FOCUS STUDY TIMER ====================
+    let timerTotalSeconds = 25 * 60;
+    let timerRemainingSeconds = 25 * 60;
+    let timerInterval = null;
+
+    function formatTimer(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateTimerUI() {
+      const disp = document.getElementById('timerDisplay');
+      const logged = document.getElementById('timerLoggedBadge');
+      if (disp) disp.textContent = formatTimer(timerRemainingSeconds);
+      if (logged) logged.textContent = `${appState.loggedMinutesToday || 0}m logged today`;
+    }
+
+    function setTimerPreset(minutes, label) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerTotalSeconds = minutes * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      document.getElementById('timerModeLabel').textContent = label;
+      document.getElementById('timerStartPauseText').textContent = 'Start';
+      [25, 45, 10].forEach(m => {
+        const btn = document.getElementById(`timerPreset-${m}`);
+        if (!btn) return;
+        btn.className = m === minutes
+          ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition'
+          : 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+      });
+      updateTimerUI();
+    }
+
+    function toggleTimer() {
+      const btnText = document.getElementById('timerStartPauseText');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btnText.textContent = 'Resume';
+        return;
+      }
+
+      btnText.textContent = 'Pause';
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerUI();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          btnText.textContent = 'Start';
+          const minsCompleted = Math.round(timerTotalSeconds / 60);
+          appState.loggedMinutesToday = (appState.loggedMinutesToday || 0) + minsCompleted;
+          timerRemainingSeconds = timerTotalSeconds;
+          updateTimerUI();
+          persistState();
+          showToast(`Focus block finished! +${minsCompleted}m logged.`);
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemainingSeconds = timerTotalSeconds;
+      document.getElementById('timerStartPauseText').textContent = 'Start';
+      updateTimerUI();
+    }
+
+    // ==================== EXPORT / IMPORT / CLEAR MODALS ====================
+    function exportData(format) {
+      if (format === 'json') {
+        const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ledgerfocus-backup-${getLocalDateISO(0)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('JSON backup downloaded');
+      } else {
+        const rows = [['Stream', 'Subject/Category', 'Title', 'DueDate', 'Recurrence', 'Priority', 'Completed']];
+        appState.tasks.forEach(t => {
+          rows.push([
+            t.type,
+            `"${(t.subject || '').replace(/"/g, '""')}"`,
+            `"${(t.title || '').replace(/"/g, '""')}"`,
+            t.dueDate || '',
+            t.recurrence || 'none',
+            t.priority || 'Medium',
+            t.completed ? 'Yes' : 'No'
+          ]);
+        });
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ledgerfocus-tasks-${getLocalDateISO(0)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('CSV exported');
+      }
+    }
+
+    function importDataFromFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed || !Array.isArray(parsed.tasks)) {
+            showToast('Invalid backup file format');
+            return;
+          }
+          appState = { ...buildDefaultState(), ...parsed };
+          applyThemeFromState();
+          persistState();
+          renderAll();
+          showToast('Backup restored successfully!');
+        } catch (err) {
+          showToast('Could not read JSON file');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function openClearModal() {
+      const m = document.getElementById('clearModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeClearModal() {
+      const m = document.getElementById('clearModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function clearAllTasks() {
+      appState.tasks = [];
+      appState.cpaFarItems = [];
+      closeClearModal();
+      persistState();
+      renderAll();
+      showToast('All sample tasks cleared');
+    }
+
+    function restoreSampleData() {
+      const fresh = buildDefaultState();
+      appState.tasks = fresh.tasks;
+      appState.cpaFarItems = fresh.cpaFarItems;
+      closeClearModal();
+      persistState();
+      renderAll();
+      showToast('Sample syllabus tasks restored');
+    }
+
+    // ==================== MASTER RENDER & INITIALIZATION ====================
+    function renderAll() {
+      updateCountdownDisplay();
+      updateHeaderStats();
+      renderSubjectOverview();
+      renderSubjectFilterTabs();
+      renderCpaFarSection();
+      renderAcademicTasks();
+      renderPersonalCategoryTabs();
+      renderPersonalTasks();
+      updateTimerUI();
+    }
+
+    window.onload = function () {
+      // Set default dates in quick-add inputs
+      const cpaDateInp = document.getElementById('cpaFarNewDate');
+      if (cpaDateInp) cpaDateInp.value = getLocalDateISO(0);
+      const persDateInp = document.getElementById('personalQuickDueDate');
+      if (persDateInp) persDateInp.value = getLocalDateISO(1);
+
+      // Attach filter & exam header listeners
+      document.getElementById('examTitleInput')?.addEventListener('input', (e) => {
+        appState.examTitle = e.target.value;
+        persistState();
+      });
+      document.getElementById('examDateInput')?.addEventListener('change', (e) => {
+        appState.examDate = e.target.value;
+        updateCountdownDisplay();
+        persistState();
+      });
+
+      ['searchInput', 'statusFilter', 'priorityFilter', 'sortFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', renderAcademicTasks);
+        document.getElementById(id)?.addEventListener('change', renderAcademicTasks);
+      });
+
+      ['personalSearchInput', 'personalStatusFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', renderPersonalTasks);
+        document.getElementById(id)?.addEventListener('change', renderPersonalTasks);
+      });
+
+      applyThemeFromState();
+      setMainTab(appState.mainTab || 'academic');
+      setViewMode(appState.viewMode || 'split');
+      renderAll();
+      initPersistence();
+    };
+  </script>
+</body>
+</html>
